@@ -1,0 +1,18 @@
+{
+    "name": "go-baseproject",
+    "short_name": "go-baseproject",
+    "theme_color": "#2196f3",
+    "background_color": "#2196f3",
+    "display": "standalone",
+    "orientation": "portrait",
+    "scope": "/",
+    "start_url": "/",
+    "icons": [
+      {
+        "src": "assets/logo.png",
+        "sizes": "600x600",
+        "type": "image/png",
+        "purpose": "any"
+      }
+    ]
+  }

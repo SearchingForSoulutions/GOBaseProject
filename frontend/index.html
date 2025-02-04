@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Scanner</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel='manifest' href='./manifest.json'>
+</head>
+<body>
+    <video></video>
+    <div id="output"></div>
+    <button onClick="window.location.reload();">Reset</button>
+    <script type="module">
+        import QrScanner from './js/node_modules/qr-scanner/qr-scanner.min.js';
+        // do something with QrScanner
+
+        // To enforce the use of the new api with detailed scan results, call the constructor with an options object, see below.
+        const qrScanner = new QrScanner(
+            document.querySelector('video'),
+            result => {
+                console.log('decoded qr code:', result);
+                getDataFromAPI(result.data)
+                qrScanner.stop();
+            },
+            { /* your options or returnDetailedScanResult: true if you're not specifying any other options */ },
+        );
+
+        qrScanner.start();
+
+        /*
+        QrScanner.scanImage(image)
+            .then(result => console.log(result))
+            .catch(error => console.log(error || 'No QR code found.'));
+        qrScanner.stop();
+        */
+    </script>
+    <script src="js/script.js"></script>
+    <script src="js/sw.js"></script>
+</body>
+</html>
