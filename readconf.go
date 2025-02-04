@@ -22,7 +22,7 @@ var (
 )
 
 // porta webrouter, default 35000
-var porta string = ":35000"
+var port string = ":35000"
 var host string = "http://localhost"
 var conffile = "conf/base.conf"
 
@@ -44,7 +44,7 @@ func ReadEnv() error {
 	if !(len(os.Args) > 1 && os.Args[1] == "test") {
 		host = os.Getenv("host")
 	}
-	porta = os.Getenv("porta")
+	port = os.Getenv("port")
 	/*
 	   result := server + " " + port + " " + user + " " + password + " " + database
 	   log.Println(result)
