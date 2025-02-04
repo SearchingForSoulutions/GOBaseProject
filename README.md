@@ -1,4 +1,4 @@
-# Project Base for Web Development with GoLang, Vanilla JS, HTML & CSS
+# Project Base for Web Development with GoLang, Vanilla JS, HTML & CSS[^1]
 
 Project basis with server-side re-build and client-side hot reload of WPA application based on GoLang, vanilla Javascript, HTML and CSS
 
