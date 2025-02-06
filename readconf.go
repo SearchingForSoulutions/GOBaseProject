@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+
 	//"log"
 	"os"
 	"runtime"
@@ -10,22 +11,17 @@ import (
 	"github.com/joho/godotenv"
 )
 
-
 // Valori di default, per creare le variabili. Occhio che le voglio tutte STRING.
 var (
-	db       *sql.DB  // Microsoft SQL Server
+	db       *sql.DB // Microsoft SQL Server
+	host     = "http://localhost"
 	server   = "127.0.0.1"
-	port     = "1433"
+	port     = ":35000"
 	user     = "user" //"user"
 	password = "pswd" //"pass"
-	database = "DB" //"DB"
+	database = "DB"   //"DB"
+	conffile = "conf/base.conf"
 )
-
-// porta webrouter, default 35000
-var port string = ":35000"
-var host string = "http://localhost"
-var conffile = "conf/base.conf"
-
 
 func ReadEnv() error {
 	// Carico le variabili dal file
@@ -41,9 +37,6 @@ func ReadEnv() error {
 	user = os.Getenv("user")
 	password = os.Getenv("password")
 	database = os.Getenv("database")
-	if !(len(os.Args) > 1 && os.Args[1] == "test") {
-		host = os.Getenv("host")
-	}
 	port = os.Getenv("port")
 	/*
 	   result := server + " " + port + " " + user + " " + password + " " + database
@@ -51,7 +44,6 @@ func ReadEnv() error {
 	*/
 	return nil
 }
-
 
 func userHomeDir() (string, string) {
 	if runtime.GOOS == "windows" {
