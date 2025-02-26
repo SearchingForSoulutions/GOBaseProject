@@ -44,7 +44,7 @@ self.addEventListener('fetch', event => {
 
 
 
-// per live reload
+// per live reload 
 /**
  * Apro una connessione WebSocket con il server, quando viene chiusa ricarico la pagina.
  * Questa è una implementazione semplicistica del live reload.
