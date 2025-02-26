@@ -10,3 +10,8 @@ Inoltre deve servire un icona quadrata di almeno 144x144 pixel, basta dargliela 
 Errori del manifest nella sezione Application dei Dev tools di chrome 
 
 utilizzo il protocollo WebSocket per aggiungere la funzionalità di live reload: quando si interrompe la connessione ricarico la pagina
+
+segreto ottenuto con powershell:
+$mystring = "deboia non ti permettere"
+$mystream = [IO.MemoryStream]::new([byte[]][char[]]$mystring)
+Get-FileHash -InputStream $mystream -Algorithm SHA256

@@ -1,41 +1,47 @@
 const cacheName = 'gobaseproject';
-
+let homepath 
 
 // per PWA: Registering our Service worker
 if('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('js/sw.js', { scope: './js/' })
+	homepath = window.location.host	
+
+	navigator.serviceWorker.register('js/sw.js', { scope: './js/' })
+		.catch(error => {
+			console.error('Service Worker Registration Failed:', error);
+		});
 }
 
 // Cache all the files to make a PWA
 self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(cacheName).then(cache => {
-      // Our application only has two files here index.html and manifest.json
-      // but you can add more such as style.css as your app grows
-      return cache.addAll([
-        './',
-        './index.html',
-        './manifest.json',
-        './js/*',
-        './css/style.css',  
-        './assets/logo.png'
-      ]);
-    })
-  );
+	e.waitUntil(
+		caches.open(cacheName).then(cache => {
+		// Our application only has two files here index.html and manifest.json
+		// but you can add more such as style.css as your app grows
+		return cache.addAll([
+			'./',
+			'./index.html',
+			'./manifest.json',
+			'./js/*',
+			'./css/style.css',  
+			'./assets/logo.png'
+		]);
+		})
+	);
 });
 
 // Our service worker will intercept all fetch requests
 // and check if we have cached the file
 // if so it will serve the cached file
 self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.open(cacheName)
-      .then(cache => cache.match(event.request, { ignoreSearch: true }))
-      .then(response => {
-        return response || fetch(event.request);
-      })
-  );
+	event.respondWith(
+		caches.open(cacheName)
+		.then(cache => cache.match(event.request, { ignoreSearch: true }))
+		.then(response => {
+			return response || fetch(event.request);
+		})
+	);
 });
+
 
 
 // per live reload
@@ -45,8 +51,8 @@ self.addEventListener('fetch', event => {
  * @file site/client-websocket.js
  */
 (() => {
-	const socketUrl = 'wss://' + window.location.host + "/ws"
-    //console.log("socketURL: " + socketUrl)
+	const socketUrl = 'ws://' + homepath + "/ws"
+	//console.log("socketURL: " + socketUrl)
 
 	let socket = new WebSocket(socketUrl);
 	socket.addEventListener('close', () => {

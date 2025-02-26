@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bytes"
 	"embed"
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 	"regexp"
@@ -20,67 +22,52 @@ type OPBody struct {
 //
 //go:embed frontend
 var staticFiles embed.FS
+var conn *websocket.Conn
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
 }
-var conn *websocket.Conn
 
 func getPrefix(path string) string {
 	return strings.Split(path, "/")[1]
 }
 
 func wsHandler(w http.ResponseWriter, r *http.Request) {
-	var err error
 	// websocket per live reload
-	conn, err = upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		log.Println(err)
-		return
-	}
+	conn = Must(upgrader.Upgrade(w, r, nil))
+
 	//... Use conn to send and receive messages.
 	//defer conn.Close()
 }
 
 /*
-	appunti su gorilla/websocket:
+appunti su gorilla/websocket:
 
-	// for {} => loop infinito
+// for {} => loop infinito
+
 	for {
 		// messageType ha valore websocket.BinaryMessage o websocket.TextMessage (UTF8)
 		// p è di tipo []byte
-		messageType, p, err := conn.ReadMessage()
-		if err != nil {
-			log.Println(err)
-			return
-		}
+		messageType, p := Must2(conn.ReadMessage())
+
 		if err := conn.WriteMessage(messageType, p); err != nil {
-			log.Println(err)
-			return
+			Panic(err)
 		}
 	}
 
 	for {
 		// r è di tipo io.Reader per file, si può leggere finchè non ritorna io.EOF
-		messageType, r, err := conn.NextReader()
-		if err != nil {
-			return
-		}
+		messageType, r := Must2(conn.NextReader())
+
 		// w di tipo io.Writer sempre per file
-		w, err := conn.NextWriter(messageType)
-		if err != nil {
-			return err
-		}
-		if _, err := io.Copy(w, r); err != nil {
-			return err
-		}
+		w := Must(conn.NextWriter(messageType))
+
+		if Must(io.Copy(w, r))
+
 		if err := w.Close(); err != nil {
-			return err
+			Panic(err)
 		}
 	}
-
-
-	l'applicazione deve usare 1 reader ed un 1 writer per goroutine
 */
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
@@ -115,19 +102,33 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	//fmt.Println("URL: " + r.URL.Path + " prefix: " + prefix + " contetype: " + contenttype)
 	w.Header().Set("Content-Type", contenttype)
 
-	var tao string
+	var content []byte
 	if r.URL.Path == "/" {
-		tao = "frontend/index.html"
+		var buff bytes.Buffer
+		filepath := "frontend/index.html"
+
+		tmpl, err := template.ParseFS(staticFiles, filepath)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		if err = tmpl.Execute(&buff, secret); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		content = buff.Bytes()
 	} else {
-		tao = "frontend" + r.URL.Path
+		filepath := "frontend" + r.URL.Path
+		content, _ = staticFiles.ReadFile(filepath)
 	}
-	//fmt.Println("path: " + r.URL.Path + " ricavato: " + tao)
-	rawFile, _ := staticFiles.ReadFile(tao)
-	w.Write(rawFile)
+
+	w.Write(content)
 }
 
 // funzione di backend generica
-func operazioniHandler(w http.ResponseWriter, r *http.Request) {
+func apiHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	decoder := json.NewDecoder(r.Body)
@@ -161,10 +162,11 @@ func operazioniHandler(w http.ResponseWriter, r *http.Request) {
 /* attivazione del servizio web */
 func main() {
 	ReadEnv()
+
 	fmt.Printf("%s\n", "Webrouter attivo")
 
 	//altri path da gestire
-	//http.HandleFunc("/api/", )
+	http.HandleFunc("/api/", apiHandler)
 	http.HandleFunc("/ws", wsHandler)
 	http.HandleFunc("/", indexHandler)
 

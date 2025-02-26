@@ -47,7 +47,7 @@ function createTableFromJson(input) {
         return table
     } else {
         const msg = document.createElement('p')
-        msg.textContent = "Nessuna operazione trovata"
+        msg.textContent = "Orpo"
         return msg
     }
 }

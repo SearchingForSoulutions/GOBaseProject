@@ -21,13 +21,14 @@ var (
 	password = "pswd" //"pass"
 	database = "DB"   //"DB"
 	conffile = "conf/base.conf"
+	secret   = ""
 )
 
 func ReadEnv() error {
 	// Carico le variabili dal file
 	//home, sep := userHomeDir()
 	fmt.Println("Carico configurazione da " + conffile)
-	err := godotenv.Load()
+	err := godotenv.Load(conffile)
 	if err != nil {
 		fmt.Println("Impossibile leggere " + conffile + ": " + err.Error())
 		return err
@@ -38,6 +39,7 @@ func ReadEnv() error {
 	password = os.Getenv("password")
 	database = os.Getenv("database")
 	port = os.Getenv("port")
+	secret = os.Getenv("secret")
 	/*
 	   result := server + " " + port + " " + user + " " + password + " " + database
 	   log.Println(result)
